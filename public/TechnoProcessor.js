@@ -26,12 +26,45 @@ function envelope(t, amp, exp) {
 	return env
 }
 
+let delayLine = new Float32Array(SAMPLERATE) // Store max 1 second of samples
+let delayIndex = 0
+
+/**
+ * @param {number} input
+ * @param {number} feedback
+ * @param {number} delayTime
+ * @returns {number}
+ */
+function processDelay(input, feedback, delayTime) {
+	// Write current input retaining some of the previous output as feedback
+	delayLine[delayIndex] = input + delayLine[delayIndex] * feedback
+	delayIndex++ // Move to next sample
+	delayIndex %= Math.floor(delayTime * SAMPLERATE) // Wrap if exceeding delay time
+	return delayLine[delayIndex] // Read delayed output
+}
+
+// Rhythm pattern in sixteenth notes
+// 1 = play chord, 0 = don't play chord
+let chordPattern = [0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0]
+
 let tSamples = 0 // Accumulated samples
 let kickPhase = 0.0
 let bassPhase = 0.0
 let chordPhase1 = 0.0
 let chordPhase2 = 0.0
 let chordPhase3 = 0.0
+
+// Additive sawtooth wave
+function saw6(phase) {
+	return (
+		Math.sin(phase) +
+		Math.sin(phase * 2.0) * 0.5 +
+		Math.sin(phase * 3.0) * 0.33 +
+		Math.sin(phase * 4.0) * 0.25 +
+		Math.sin(phase * 5.0) * 0.2 +
+		Math.sin(phase * 6.0) * 0.16
+	)
+}
 
 /**
  * @param {Float32Array} buffer
@@ -62,7 +95,23 @@ function makeSomeTechno(buffer) {
 		bass = Math.tanh(bass * 1.5) // More saturation
 		bass *= 0.2 - envelope(tBeatFrac, 0.2, 0.5) // "Sidechaining"
 
-		let sample = noise + kick + bass
+		// Chords
+		let chordFreq = bassFreq * 4.0 // 200Hz, 2 octaves above bass
+		if (bar % 4 === 2 || bar % 4 === 3) chordFreq *= 2.0 / 3.0 // Perfect 5th down
+		chordPhase1 = phasor(chordPhase1, chordFreq)
+		chordPhase2 = phasor(chordPhase2, (chordFreq * 3.0) / 2.0) // Perfect 5th
+		chordPhase3 = phasor(chordPhase3, (chordFreq * 6.0) / 5.0) // Minor 3rd
+		let chord =
+			saw6(chordPhase1 * TWO_PI) +
+			saw6(chordPhase2 * TWO_PI) +
+			saw6(chordPhase3 * TWO_PI)
+		let chordPatternIndex = (tSixteenths | 0) % 16 // 0-15
+		let chordHit = chordPattern[chordPatternIndex] // 0 or 1 if chord should play
+		chord *= envelope(tSixteenthFrac, 0.1, 3.0) * chordHit
+		chord = chord + processDelay(chord, 0.5, 0.375) * 0.4 // Dotted 8th feedback delay
+
+		// Collect stuff
+		let sample = noise + kick + bass + chord
 		let volume = 1
 
 		// if (tSamples < 100) {
@@ -70,9 +119,9 @@ function makeSomeTechno(buffer) {
 		// }
 
 		let abs = Math.abs(sample)
-		let limit = 0.2
+		let limit = 0.7
 		if (abs > limit) {
-			// console.log('clip at', tSamples, 'sample', sample)
+			console.log('clip at', tSamples, 'sample', sample)
 			sample = Math.sign(sample) * limit
 		}
 
