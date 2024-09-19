@@ -111,7 +111,7 @@ function makeSomeTechno(buffer) {
 		chord = chord + processDelay(chord, 0.5, 0.375) * 0.4 // Dotted 8th feedback delay
 
 		// Collect stuff
-		let sample = noise + kick + bass + chord
+		let sample = kick + bass + chord
 		let volume = 1
 
 		// if (tSamples < 100) {
