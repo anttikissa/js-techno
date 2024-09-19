@@ -1,8 +1,30 @@
 import { log } from '~/lib/log'
 import { isServer } from 'solid-js/web'
 
+function sleep(ms: number) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms)
+	})
+}
+
 export default function Techno() {
 	let ctx: AudioContext
+
+	let worklet: AudioWorkletNode
+
+	async function addModule() {
+		if (!ctx) {
+			await init()
+		}
+
+		if (worklet) {
+			worklet.disconnect()
+		}
+
+		await ctx.audioWorklet.addModule('TechnoProcessor.js')
+		worklet = new AudioWorkletNode(ctx, 'techno-processor')
+		worklet.connect(ctx.destination)
+	}
 
 	async function init() {
 		if (ctx) {
@@ -14,10 +36,7 @@ export default function Techno() {
 		}
 
 		ctx = new AudioContext({ sampleRate: 48000 })
-		await ctx.audioWorklet.addModule('TechnoProcessor.js')
-		let worklet = new AudioWorkletNode(ctx, 'techno-processor')
-
-		worklet.connect(ctx.destination)
+		await addModule()
 	}
 
 	async function play() {
@@ -34,10 +53,20 @@ export default function Techno() {
 		await ctx.suspend()
 	}
 
+	async function refresh() {
+		// await sleep(200)
+
+		// Reloading module doesn't work
+		// await addModule()
+
+		window.location.reload()
+	}
+
 	return (
 		<div class="Techno">
 			<button onClick={play}>Play</button>
 			<button onClick={pause}>Pause</button>
+			<button onClick={refresh}>Refresh</button>
 		</div>
 	)
 }
