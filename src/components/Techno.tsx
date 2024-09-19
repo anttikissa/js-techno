@@ -66,6 +66,10 @@ export default function Techno() {
 
 	onCleanup(async () => {
 		// Avoid multiple audio players playing when hot reloading
+		if (isServer) {
+			return
+		}
+
 		log('cleanup')
 
 		if (worklet) {
