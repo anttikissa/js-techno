@@ -53,7 +53,7 @@ function makeSomeTechno(buffer) {
 		let kickFreq = 50.0 + envelope(tBeatFrac, 900.0, 50.0) // Freq decay 950->50Hz
 		kickPhase = phasor(kickPhase, kickFreq)
 		let kick = Math.sin(kickPhase * TWO_PI) // Sine wave
-		kick *= envelope(tBeatFrac, 0.9, 3.0) // Shape the amplitude
+		kick *= envelope(tBeatFrac, 0.15, 3.0) // Shape the amplitude
 
 		let sample = noise + kick
 		let volume = 1
