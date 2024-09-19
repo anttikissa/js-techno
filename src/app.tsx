@@ -4,7 +4,7 @@ import Techno from '~/components/Techno'
 export default function App() {
 	return (
 		<main>
-			<h1>Hello world!</h1>
+			<h1>Press play for some noise!</h1>
 			<Techno />
 		</main>
 	)

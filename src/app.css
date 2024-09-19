@@ -28,7 +28,17 @@ html, body {
 }
 
 main {
-	border: 3px solid green;
+	/*border: 3px solid green;*/
 	max-width: 600px;
 	margin: 3em auto;
+}
+
+h1 {
+	margin-bottom: 1rem;
+}
+
+.Techno button {
+	line-height: 64px;
+	font-size: 40px;
+	margin-right: 1rem;
 }

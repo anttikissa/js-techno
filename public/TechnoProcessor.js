@@ -4,7 +4,7 @@
 function makeSomeTechno(buffer) {
 	for (let i = 0; i < 128; i++) {
 		let sample = Math.random() * 2 - 1;
-		sample *= 0.02
+		sample *= 0.03
 
 		buffer[i] = sample
 	}
