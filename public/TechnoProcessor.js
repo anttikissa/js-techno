@@ -47,7 +47,7 @@ function makeSomeTechno(buffer) {
 
 		// Noise
 		let noise = Math.random() * 2 - 1
-		noise *= 0.015
+		noise *= 0.005
 
 		// Kick
 		let kickFreq = 50.0 + envelope(tBeatFrac, 900.0, 50.0) // Freq decay 950->50Hz
@@ -55,7 +55,14 @@ function makeSomeTechno(buffer) {
 		let kick = Math.sin(kickPhase * TWO_PI) // Sine wave
 		kick *= envelope(tBeatFrac, 0.15, 3.0) // Shape the amplitude
 
-		let sample = noise + kick
+		// Bass
+		let bassFreq = 50.0 // Hz
+		bassPhase = phasor(bassPhase, bassFreq)
+		let bass = Math.sin(bassPhase * TWO_PI) // Sine wave
+		bass = Math.tanh(bass * 1.5) // More saturation
+		bass *= 0.2 - envelope(tBeatFrac, 0.2, 0.5) // "Sidechaining"
+
+		let sample = noise + kick + bass
 		let volume = 1
 
 		// if (tSamples < 100) {
