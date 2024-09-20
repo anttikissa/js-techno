@@ -12,6 +12,7 @@ function sleep(ms: number) {
 	})
 }
 
+
 export default function Techno() {
 	let ctx: AudioContext
 	let worklet: AudioWorkletNode
@@ -29,6 +30,11 @@ export default function Techno() {
 		// use data: url to load it
 		await ctx.audioWorklet.addModule('TechnoProcessor.js')
 		worklet = new AudioWorkletNode(ctx, 'techno-processor')
+
+		worklet.port.postMessage({
+			fn: 'console.log("glbl is", glbl)',
+		});
+
 		worklet.connect(ctx.destination)
 	}
 
@@ -92,14 +98,25 @@ export default function Techno() {
 		}
 	}, 1000, setInterval)
 
+	function testPost() {
+		if (worklet) {
+			worklet.port.postMessage({
+				fn: "console.log('hello from test', tSamples)"
+			})
+		}
+	}
+
 	createShortcut(['P'], play)
 	createShortcut(['R'], refresh)
+	createShortcut(['T'], testPost)
 
 	return (
 		<div class="Techno">
 			<button onClick={play}><em>p</em>lay</button>
 			<button onClick={pause}>pause</button>
 			<button onClick={refresh}><em>r</em>eload page</button>
+
+			<button onClick={testPost}><em>t</em>est post</button>
 		</div>
 	)
 }

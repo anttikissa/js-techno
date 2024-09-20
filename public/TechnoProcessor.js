@@ -70,7 +70,9 @@ function saw6(phase) {
  * @param {Float32Array} buffer
  */
 function makeSomeTechno(buffer) {
-	for (let i = 0; i < 128; i++) {
+	let samples = buffer.length;
+
+	for (let i = 0; i < samples; i++) {
 		let tSeconds = tSamples++ * SAMPLE_DUR // Current time
 		let tBeats = tSeconds * 2.0 // Current beat @ 120 BPM
 		let tBeatFrac = tBeats - Math.trunc(tBeats) // Time within beat (0-1)
@@ -129,19 +131,61 @@ function makeSomeTechno(buffer) {
 	}
 }
 
+let frame = 0;
+
+function log(...args) {
+	let ts = new Date().toISOString().replace('T', ' ').replace('Z', '')
+	console.log(ts, ...args)
+}
+
+function busyLoop(ms) {
+	let i = 0;
+	let n = 0;
+	let start = Date.now()
+
+	log('busyloop start')
+	while (true) {
+		i + n++
+		let now = Date.now()
+		if (now - start >= ms) {
+			log('busyloop end')
+			return
+		}
+	}
+}
+
+let glbl = 123
+
 class TechnoProcessor extends AudioWorkletProcessor {
 	constructor() {
 		super()
+
+		this.port.onmessage = (event) => {
+			let fn = event.data.fn
+			if (typeof fn === 'string') {
+				console.log('onmessage eval', fn)
+				eval(fn)
+			}
+		}
 	}
 
 	process(_inputs, outputs) {
-		let buffer = new Float32Array(128)
 
-		makeSomeTechno(buffer)
+		// 48000 / 128 = 375 times per second
+		if (frame % 375 === 0) {
+			// console.log('frame', frame)
+			// Empirically, even 50ms busyloop is not enough to cause a glitch
+			// At 60ms, it starts to cause audible effects
+			// busyLoop(50)
+		}
 
-		outputs[0][0].set(buffer)
+		makeSomeTechno(outputs[0][0])
+
+		frame++;
+
 		return true
 	}
 }
 
+// noinspection JSUnresolvedReference
 registerProcessor('techno-processor', TechnoProcessor)
