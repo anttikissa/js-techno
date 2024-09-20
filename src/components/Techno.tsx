@@ -1,6 +1,10 @@
 import { log } from '~/lib/log'
 import { isServer } from 'solid-js/web'
 import { onCleanup } from 'solid-js'
+import { createTimer } from '@solid-primitives/timer'
+import { createShortcut } from '@solid-primitives/keyboard'
+
+import './Techno.css'
 
 function sleep(ms: number) {
 	return new Promise((resolve) => {
@@ -81,11 +85,21 @@ export default function Techno() {
 		}
 	})
 
+	createTimer(() => {
+		if (ctx) {
+			// chrome: 0.016 consistently
+			console.log('output latency', ctx.outputLatency)
+		}
+	}, 1000, setInterval)
+
+	createShortcut(['P'], play)
+	createShortcut(['R'], refresh)
+
 	return (
 		<div class="Techno">
-			<button onClick={play}>Play</button>
-			<button onClick={pause}>Pause</button>
-			<button onClick={refresh}>Reload page</button>
+			<button onClick={play}><em>p</em>lay</button>
+			<button onClick={pause}>pause</button>
+			<button onClick={refresh}><em>r</em>eload page</button>
 		</div>
 	)
 }

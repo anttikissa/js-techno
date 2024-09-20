@@ -1,0 +1,26 @@
+.Techno button {
+	font-family: monospace;
+	line-height: 40px;
+	font-size: 32px;
+	margin-right: 1rem;
+
+	font-weight: 300;
+	color: #888;
+
+	padding-bottom: 5px;
+	> em {
+		font-style: normal;
+		font-weight: 500;
+		color: #000;
+
+		&::before {
+			content: '[';
+			color: #888;
+		}
+		&::after {
+			content: ']';
+			color: #888;
+		}
+	}
+}
+

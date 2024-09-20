@@ -7,6 +7,8 @@
     "start": "vinxi start"
   },
   "dependencies": {
+    "@solid-primitives/keyboard": "^1.2.8",
+    "@solid-primitives/timer": "^1.3.10",
     "@solidjs/start": "^1.0.6",
     "solid-js": "^1.8.18",
     "vinxi": "^0.4.1"
